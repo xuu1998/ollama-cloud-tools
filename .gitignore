@@ -1,0 +1,8 @@
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+tools/plugincheck.exe
+docs/*-design-plan.md
+*.zip

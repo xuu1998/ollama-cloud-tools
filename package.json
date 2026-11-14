@@ -1,0 +1,11 @@
+{
+  "name": "new-api-ollama-cloud-tools",
+  "version": "1.0.3",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "fixtures": "node tools/write-fixtures.mjs"
+  },
+  "engines": { "node": ">=22" }
+}

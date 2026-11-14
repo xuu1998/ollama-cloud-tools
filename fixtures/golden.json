@@ -1,0 +1,2067 @@
+{
+  "cases": [
+    {
+      "name": "搜索缺省模型和结果数",
+      "hook": "native",
+      "member": "search",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "query": "Ollama 云搜索"
+            }
+          }
+        }
+      ],
+      "expected": {
+        "kind": "submit",
+        "model": "ollama-web-search",
+        "action": "search",
+        "requestBody": {
+          "query": "Ollama 云搜索",
+          "max_results": 5
+        }
+      }
+    },
+    {
+      "name": "搜索接受最大十条且不裁剪查询文本",
+      "hook": "native",
+      "member": "search",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "query": " news ",
+              "max_results": 10,
+              "model": "ollama-web-search"
+            }
+          }
+        }
+      ],
+      "expected": {
+        "kind": "submit",
+        "model": "ollama-web-search",
+        "action": "search",
+        "requestBody": {
+          "query": " news ",
+          "max_results": 10
+        }
+      }
+    },
+    {
+      "name": "拒绝空查询",
+      "hook": "native",
+      "member": "search",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "query": "   "
+            }
+          }
+        }
+      ],
+      "expectedError": "query"
+    },
+    {
+      "name": "拒绝超过十条",
+      "hook": "native",
+      "member": "search",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "query": "news",
+              "max_results": 11
+            }
+          }
+        }
+      ],
+      "expectedError": "max_results"
+    },
+    {
+      "name": "拒绝零条结果",
+      "hook": "native",
+      "member": "search",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "query": "news",
+              "max_results": 0
+            }
+          }
+        }
+      ],
+      "expectedError": "max_results"
+    },
+    {
+      "name": "拒绝小数结果数",
+      "hook": "native",
+      "member": "search",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "query": "news",
+              "max_results": 1.5
+            }
+          }
+        }
+      ],
+      "expectedError": "max_results"
+    },
+    {
+      "name": "拒绝字符串结果数",
+      "hook": "native",
+      "member": "search",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "query": "news",
+              "max_results": "5"
+            }
+          }
+        }
+      ],
+      "expectedError": "max_results"
+    },
+    {
+      "name": "拒绝搜索跨模型路由",
+      "hook": "native",
+      "member": "search",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "query": "news",
+              "model": "clef"
+            }
+          }
+        }
+      ],
+      "expectedError": "model"
+    },
+    {
+      "name": "拒绝搜索未知字段",
+      "hook": "native",
+      "member": "search",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "query": "news",
+              "api_key": "leak"
+            }
+          }
+        }
+      ],
+      "expectedError": "api_key"
+    },
+    {
+      "name": "拒绝非 JSON 正文",
+      "hook": "native",
+      "member": "search",
+      "args": [
+        {
+          "body": {
+            "kind": "form",
+            "fields": {
+              "query": [
+                "news"
+              ]
+            }
+          }
+        }
+      ],
+      "expectedError": "JSON"
+    },
+    {
+      "name": "网页读取补全 https",
+      "hook": "native",
+      "member": "fetch",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "url": "ollama.com/docs"
+            }
+          }
+        }
+      ],
+      "expected": {
+        "kind": "submit",
+        "model": "ollama-web-fetch",
+        "action": "fetch",
+        "requestBody": {
+          "url": "https://ollama.com/docs"
+        }
+      }
+    },
+    {
+      "name": "保留网页查询参数",
+      "hook": "native",
+      "member": "fetch",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "url": "https://example.org/a?q=b"
+            }
+          }
+        }
+      ],
+      "expected": {
+        "kind": "submit",
+        "model": "ollama-web-fetch",
+        "action": "fetch",
+        "requestBody": {
+          "url": "https://example.org/a?q=b"
+        }
+      }
+    },
+    {
+      "name": "拒绝文件地址",
+      "hook": "native",
+      "member": "fetch",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "url": "file:///etc/passwd"
+            }
+          }
+        }
+      ],
+      "expectedError": "url"
+    },
+    {
+      "name": "拒绝缺少主机的网页地址",
+      "hook": "native",
+      "member": "fetch",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "url": "https:///page"
+            }
+          }
+        }
+      ],
+      "expectedError": "url"
+    },
+    {
+      "name": "拒绝 URL 内嵌凭据",
+      "hook": "native",
+      "member": "fetch",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "url": "https://user:password@example.org/"
+            }
+          }
+        }
+      ],
+      "expectedError": "url"
+    },
+    {
+      "name": "拒绝 localhost",
+      "hook": "native",
+      "member": "fetch",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "url": "http://localhost/admin"
+            }
+          }
+        }
+      ],
+      "expectedError": "public"
+    },
+    {
+      "name": "拒绝内网 IPv4",
+      "hook": "native",
+      "member": "fetch",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "url": "http://192.168.123.45/"
+            }
+          }
+        }
+      ],
+      "expectedError": "public"
+    },
+    {
+      "name": "拒绝回环 IPv6",
+      "hook": "native",
+      "member": "fetch",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "url": "http://[::1]/"
+            }
+          }
+        }
+      ],
+      "expectedError": "public"
+    },
+    {
+      "name": "云别名归一到 clef",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef:cloud",
+              "state": "支付返回 500。",
+              "questions": {
+                "urgent": {
+                  "type": "noul",
+                  "instructions": "需要立即处理吗？"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expected": {
+        "kind": "submit",
+        "model": "clef:cloud",
+        "action": "decision",
+        "requestBody": {
+          "model": "clef",
+          "state": "支付返回 500。",
+          "questions": {
+            "urgent": {
+              "type": "noul",
+              "instructions": "需要立即处理吗？"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "决策接受 clef:27b 并保留明确的模型规格",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef:27b",
+              "state": "支付返回 500。",
+              "questions": {
+                "urgent": {
+                  "type": "noul",
+                  "instructions": "需要立即处理吗？"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expected": {
+        "kind": "submit",
+        "model": "clef:27b",
+        "action": "decision",
+        "requestBody": {
+          "model": "clef:27b",
+          "state": "支付返回 500。",
+          "questions": {
+            "urgent": {
+              "type": "noul",
+              "instructions": "需要立即处理吗？"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "27b 云标签归一到对应的 27b 规格",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef:27b-cloud",
+              "state": "支付返回 500。",
+              "questions": {
+                "urgent": {
+                  "type": "noul",
+                  "instructions": "需要立即处理吗？"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expected": {
+        "kind": "submit",
+        "model": "clef:27b-cloud",
+        "action": "decision",
+        "requestBody": {
+          "model": "clef:27b",
+          "state": "支付返回 500。",
+          "questions": {
+            "urgent": {
+              "type": "noul",
+              "instructions": "需要立即处理吗？"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "保留结构化 state 和三种问题",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef",
+              "state": {
+                "body": "请退款",
+                "flags": [
+                  false,
+                  0
+                ]
+              },
+              "questions": {
+                "refund": {
+                  "type": "noul",
+                  "instructions": {
+                    "task": "需要退款吗？"
+                  },
+                  "criteria": {
+                    "true": "需要退款"
+                  }
+                },
+                "label": {
+                  "type": "choice",
+                  "instructions": [
+                    "选择负责团队"
+                  ],
+                  "criteria": {
+                    "billing": "付款",
+                    "bug": null
+                  }
+                },
+                "urgency": {
+                  "type": "score",
+                  "instructions": "有多紧急？",
+                  "criteria": [
+                    "普通",
+                    "紧急"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expected": {
+        "kind": "submit",
+        "model": "clef",
+        "action": "decision",
+        "requestBody": {
+          "model": "clef",
+          "state": {
+            "body": "请退款",
+            "flags": [
+              false,
+              0
+            ]
+          },
+          "questions": {
+            "refund": {
+              "type": "noul",
+              "instructions": {
+                "task": "需要退款吗？"
+              },
+              "criteria": {
+                "true": "需要退款"
+              }
+            },
+            "label": {
+              "type": "choice",
+              "instructions": [
+                "选择负责团队"
+              ],
+              "criteria": {
+                "billing": "付款",
+                "bug": null
+              }
+            },
+            "urgency": {
+              "type": "score",
+              "instructions": "有多紧急？",
+              "criteria": [
+                "普通",
+                "紧急"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "拒绝未确认的本地模型",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "nimble",
+              "state": "支付返回 500。",
+              "questions": {
+                "urgent": {
+                  "type": "noul",
+                  "instructions": "需要立即处理吗？"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expectedError": "model"
+    },
+    {
+      "name": "决策缺少模型不默认猜测",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "state": "text",
+              "questions": {
+                "urgent": {
+                  "type": "noul",
+                  "instructions": "需要立即处理吗？"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expectedError": "model"
+    },
+    {
+      "name": "拒绝空 state",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef",
+              "state": " ",
+              "questions": {
+                "urgent": {
+                  "type": "noul",
+                  "instructions": "需要立即处理吗？"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expectedError": "state"
+    },
+    {
+      "name": "拒绝 null state",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef",
+              "state": null,
+              "questions": {
+                "urgent": {
+                  "type": "noul",
+                  "instructions": "需要立即处理吗？"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expectedError": "state"
+    },
+    {
+      "name": "拒绝布尔 state",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef",
+              "state": false,
+              "questions": {
+                "urgent": {
+                  "type": "noul",
+                  "instructions": "需要立即处理吗？"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expectedError": "state"
+    },
+    {
+      "name": "拒绝无问题",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef",
+              "state": "支付返回 500。",
+              "questions": {}
+            }
+          }
+        }
+      ],
+      "expectedError": "questions"
+    },
+    {
+      "name": "拒绝非法问题名",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef",
+              "state": "支付返回 500。",
+              "questions": {
+                "中文": {
+                  "type": "noul",
+                  "instructions": "需要立即处理吗？"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expectedError": "name"
+    },
+    {
+      "name": "拒绝未知问题类型",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef",
+              "state": "支付返回 500。",
+              "questions": {
+                "q": {
+                  "type": "boolean",
+                  "instructions": "判断"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expectedError": "type"
+    },
+    {
+      "name": "拒绝空 instructions",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef",
+              "state": "支付返回 500。",
+              "questions": {
+                "q": {
+                  "type": "noul",
+                  "instructions": " "
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expectedError": "instructions"
+    },
+    {
+      "name": "拒绝不支持的 stream",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef",
+              "state": "支付返回 500。",
+              "questions": {
+                "urgent": {
+                  "type": "noul",
+                  "instructions": "需要立即处理吗？"
+                }
+              },
+              "stream": true
+            }
+          }
+        }
+      ],
+      "expectedError": "stream"
+    },
+    {
+      "name": "拒绝工具参数",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef",
+              "state": "支付返回 500。",
+              "questions": {
+                "urgent": {
+                  "type": "noul",
+                  "instructions": "需要立即处理吗？"
+                }
+              },
+              "tools": []
+            }
+          }
+        }
+      ],
+      "expectedError": "tools"
+    },
+    {
+      "name": "choice 至少两个选项",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef",
+              "state": "支付返回 500。",
+              "questions": {
+                "q": {
+                  "type": "choice",
+                  "instructions": "选择",
+                  "criteria": {
+                    "a": "A"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expectedError": "criteria"
+    },
+    {
+      "name": "noul 禁止额外选项",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef",
+              "state": "支付返回 500。",
+              "questions": {
+                "q": {
+                  "type": "noul",
+                  "instructions": "判断",
+                  "criteria": {
+                    "maybe": "也许"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expectedError": "criteria"
+    },
+    {
+      "name": "score 必须数组",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef",
+              "state": "支付返回 500。",
+              "questions": {
+                "q": {
+                  "type": "score",
+                  "instructions": "评分",
+                  "criteria": {
+                    "low": "低",
+                    "high": "高"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expectedError": "criteria"
+    },
+    {
+      "name": "score 至多十级",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef",
+              "state": "支付返回 500。",
+              "questions": {
+                "q": {
+                  "type": "score",
+                  "instructions": "评分",
+                  "criteria": [
+                    "级别",
+                    "级别",
+                    "级别",
+                    "级别",
+                    "级别",
+                    "级别",
+                    "级别",
+                    "级别",
+                    "级别",
+                    "级别",
+                    "级别"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expectedError": "criteria"
+    },
+    {
+      "name": "拒绝图片 URL",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef",
+              "state": "支付返回 500。",
+              "questions": {
+                "urgent": {
+                  "type": "noul",
+                  "instructions": "需要立即处理吗？"
+                }
+              },
+              "images": [
+                "https://example.org/a.png"
+              ]
+            }
+          }
+        }
+      ],
+      "expectedError": "base64"
+    },
+    {
+      "name": "拒绝 data URL",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef",
+              "state": "支付返回 500。",
+              "questions": {
+                "urgent": {
+                  "type": "noul",
+                  "instructions": "需要立即处理吗？"
+                }
+              },
+              "images": [
+                "data:image/png;base64,aGVsbG8="
+              ]
+            }
+          }
+        }
+      ],
+      "expectedError": "base64"
+    },
+    {
+      "name": "拒绝超过四张图片",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef",
+              "state": "支付返回 500。",
+              "questions": {
+                "urgent": {
+                  "type": "noul",
+                  "instructions": "需要立即处理吗？"
+                }
+              },
+              "images": [
+                "aGVsbG8=",
+                "aGVsbG8=",
+                "aGVsbG8=",
+                "aGVsbG8=",
+                "aGVsbG8="
+              ]
+            }
+          }
+        }
+      ],
+      "expectedError": "images"
+    },
+    {
+      "name": "拒绝未知问题字段",
+      "hook": "native",
+      "member": "decision",
+      "args": [
+        {
+          "body": {
+            "kind": "json",
+            "value": {
+              "model": "clef",
+              "state": "支付返回 500。",
+              "questions": {
+                "q": {
+                  "type": "noul",
+                  "instructions": "需要立即处理吗？",
+                  "temperature": 0
+                }
+              }
+            }
+          }
+        }
+      ],
+      "expectedError": "temperature"
+    },
+    {
+      "name": "构建云搜索请求及鉴权",
+      "hook": "buildSubmitRequest",
+      "args": [
+        {
+          "model": "ollama-web-search",
+          "upstreamModel": "ollama-web-search",
+          "action": "search",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "query": "news",
+            "max_results": 5
+          }
+        }
+      ],
+      "expected": {
+        "url": "https://ollama.com/api/web_search",
+        "method": "POST",
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer test-channel-key"
+        },
+        "body": {
+          "query": "news",
+          "max_results": 5
+        }
+      }
+    },
+    {
+      "name": "构建云端决策请求且移除 cloud 后缀",
+      "hook": "buildSubmitRequest",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef:cloud",
+          "action": "decision",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com/",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        }
+      ],
+      "expected": {
+        "url": "https://ollama.com/v1/systemone",
+        "method": "POST",
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer test-channel-key"
+        },
+        "body": {
+          "model": "clef",
+          "state": "支付返回 500。",
+          "questions": {
+            "urgent": {
+              "type": "noul",
+              "instructions": "需要立即处理吗？"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "New API 上游搜索使用插件专属前缀和网关令牌",
+      "hook": "buildSubmitRequest",
+      "args": [
+        {
+          "model": "ollama-web-search",
+          "upstreamModel": "ollama-web-search",
+          "action": "search",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://gateway.example",
+          "apiKey": "test-gateway-token",
+          "requestBody": {
+            "query": "news",
+            "max_results": 3
+          },
+          "upstream": {
+            "kind": "new_api"
+          }
+        }
+      ],
+      "expected": {
+        "url": "https://gateway.example/ollama-cloud-tools/api/web_search",
+        "method": "POST",
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer test-gateway-token"
+        },
+        "body": {
+          "query": "news",
+          "max_results": 3
+        }
+      }
+    },
+    {
+      "name": "New API 网页读取允许内网 HTTP 网关和部署路径前缀",
+      "hook": "buildSubmitRequest",
+      "args": [
+        {
+          "model": "ollama-web-fetch",
+          "upstreamModel": "ollama-web-fetch",
+          "action": "fetch",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "http://gateway.example:3000/gateway/",
+          "apiKey": "test-gateway-token",
+          "requestBody": {
+            "url": "https://ollama.com/"
+          },
+          "upstream": {
+            "kind": "new_api"
+          }
+        }
+      ],
+      "expected": {
+        "url": "http://gateway.example:3000/gateway/ollama-cloud-tools/api/web_fetch",
+        "method": "POST",
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer test-gateway-token"
+        },
+        "body": {
+          "url": "https://ollama.com/"
+        }
+      }
+    },
+    {
+      "name": "New API 决策转发保留上游渠道发布的 cloud 模型名",
+      "hook": "buildSubmitRequest",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef:cloud",
+          "action": "decision",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://gateway.example/",
+          "apiKey": "test-gateway-token",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          },
+          "upstream": {
+            "kind": "new_api"
+          }
+        }
+      ],
+      "expected": {
+        "url": "https://gateway.example/ollama-cloud-tools/v1/systemone",
+        "method": "POST",
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer test-gateway-token"
+        },
+        "body": {
+          "model": "clef:cloud",
+          "state": "支付返回 500。",
+          "questions": {
+            "urgent": {
+              "type": "noul",
+              "instructions": "需要立即处理吗？"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "直连 Ollama 不允许明文 HTTP 地址",
+      "hook": "buildSubmitRequest",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef",
+          "action": "decision",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "http://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          },
+          "upstream": {
+            "kind": "vendor"
+          }
+        }
+      ],
+      "expectedError": "baseUrl"
+    },
+    {
+      "name": "直连云端发送明确的 clef:27b 模型名",
+      "hook": "buildSubmitRequest",
+      "args": [
+        {
+          "model": "clef:27b",
+          "upstreamModel": "clef:27b",
+          "action": "decision",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef:27b",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        }
+      ],
+      "expected": {
+        "url": "https://ollama.com/v1/systemone",
+        "method": "POST",
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer test-channel-key"
+        },
+        "body": {
+          "model": "clef:27b",
+          "state": "支付返回 500。",
+          "questions": {
+            "urgent": {
+              "type": "noul",
+              "instructions": "需要立即处理吗？"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "New API 上游保留 clef:27b-cloud 模型名",
+      "hook": "buildSubmitRequest",
+      "args": [
+        {
+          "model": "clef:27b",
+          "upstreamModel": "clef:27b-cloud",
+          "action": "decision",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://gateway.example",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef:27b",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          },
+          "upstream": {
+            "kind": "new_api"
+          }
+        }
+      ],
+      "expected": {
+        "url": "https://gateway.example/ollama-cloud-tools/v1/systemone",
+        "method": "POST",
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer test-channel-key"
+        },
+        "body": {
+          "model": "clef:27b-cloud",
+          "state": "支付返回 500。",
+          "questions": {
+            "urgent": {
+              "type": "noul",
+              "instructions": "需要立即处理吗？"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "拒绝通过映射切换本地模型",
+      "hook": "buildSubmitRequest",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef-flash",
+          "action": "decision",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        }
+      ],
+      "expectedError": "model"
+    },
+    {
+      "name": "拒绝缺少渠道密钥",
+      "hook": "buildSubmitRequest",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef",
+          "action": "decision",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        }
+      ],
+      "expectedError": "key"
+    },
+    {
+      "name": "拒绝渠道地址混入查询参数",
+      "hook": "buildSubmitRequest",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef",
+          "action": "decision",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com?key=x",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        }
+      ],
+      "expectedError": "baseUrl"
+    },
+    {
+      "name": "拒绝未知操作",
+      "hook": "buildSubmitRequest",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef",
+          "action": "chat",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        }
+      ],
+      "expectedError": "action"
+    },
+    {
+      "name": "同步搜索立即完成而非等待轮询",
+      "hook": "parseSubmitResponse",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef",
+          "action": "search",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        },
+        {
+          "statusCode": 200,
+          "headers": {},
+          "body": {
+            "results": [
+              {
+                "title": "Ollama",
+                "url": "https://ollama.com/",
+                "content": "Cloud models"
+              }
+            ]
+          }
+        }
+      ],
+      "expected": {
+        "taskId": "sync-task_public_123",
+        "taskData": {
+          "results": [
+            {
+              "title": "Ollama",
+              "url": "https://ollama.com/",
+              "content": "Cloud models"
+            }
+          ]
+        },
+        "immediate": {
+          "taskId": "sync-task_public_123",
+          "status": "SUCCESS",
+          "progress": "100%"
+        }
+      }
+    },
+    {
+      "name": "同步网页读取立即完成",
+      "hook": "parseSubmitResponse",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef",
+          "action": "fetch",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        },
+        {
+          "statusCode": 200,
+          "body": {
+            "title": "Ollama",
+            "content": "A page",
+            "links": [
+              "https://ollama.com/"
+            ]
+          }
+        }
+      ],
+      "expected": {
+        "taskId": "sync-task_public_123",
+        "taskData": {
+          "title": "Ollama",
+          "content": "A page",
+          "links": [
+            "https://ollama.com/"
+          ]
+        },
+        "immediate": {
+          "taskId": "sync-task_public_123",
+          "status": "SUCCESS",
+          "progress": "100%"
+        }
+      }
+    },
+    {
+      "name": "同步云端决策立即完成并保留原生概率",
+      "hook": "parseSubmitResponse",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef",
+          "action": "decision",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        },
+        {
+          "statusCode": 200,
+          "body": {
+            "model": "clef",
+            "answers": {
+              "urgent": {
+                "type": "noul",
+                "noul": 0.95
+              }
+            },
+            "usage": {
+              "input_tokens": 174,
+              "output_tokens": 0
+            }
+          }
+        }
+      ],
+      "expected": {
+        "taskId": "sync-task_public_123",
+        "taskData": {
+          "model": "clef",
+          "answers": {
+            "urgent": {
+              "type": "noul",
+              "noul": 0.95
+            }
+          },
+          "usage": {
+            "input_tokens": 174,
+            "output_tokens": 0
+          }
+        },
+        "immediate": {
+          "taskId": "sync-task_public_123",
+          "status": "SUCCESS",
+          "progress": "100%"
+        }
+      }
+    },
+    {
+      "name": "拒绝成功状态中的上游错误对象",
+      "hook": "parseSubmitResponse",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef",
+          "action": "decision",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        },
+        {
+          "statusCode": 200,
+          "body": {
+            "error": "bad request"
+          }
+        }
+      ],
+      "expectedError": "error"
+    },
+    {
+      "name": "拒绝缺少搜索 results 的上游正文",
+      "hook": "parseSubmitResponse",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef",
+          "action": "search",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        },
+        {
+          "statusCode": 200,
+          "body": {}
+        }
+      ],
+      "expectedError": "results"
+    },
+    {
+      "name": "拒绝缺少 usage 的决策正文",
+      "hook": "parseSubmitResponse",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef",
+          "action": "decision",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        },
+        {
+          "statusCode": 200,
+          "body": {
+            "model": "clef",
+            "answers": {}
+          }
+        }
+      ],
+      "expectedError": "usage"
+    },
+    {
+      "name": "拒绝非整数 token 量",
+      "hook": "parseSubmitResponse",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef",
+          "action": "decision",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        },
+        {
+          "statusCode": 200,
+          "body": {
+            "model": "clef",
+            "answers": {
+              "urgent": {
+                "type": "noul",
+                "noul": 0.95
+              }
+            },
+            "usage": {
+              "input_tokens": -1,
+              "output_tokens": 0
+            }
+          }
+        }
+      ],
+      "expectedError": "input_tokens"
+    },
+    {
+      "name": "返回原生搜索结果",
+      "hook": "native",
+      "member": "result",
+      "args": [
+        {},
+        {
+          "status": "SUCCESS",
+          "data": {
+            "results": [
+              {
+                "title": "Ollama",
+                "url": "https://ollama.com/",
+                "content": "Cloud models"
+              }
+            ]
+          }
+        }
+      ],
+      "expected": {
+        "results": [
+          {
+            "title": "Ollama",
+            "url": "https://ollama.com/",
+            "content": "Cloud models"
+          }
+        ]
+      }
+    },
+    {
+      "name": "返回原生决策概率和零输出 tokens",
+      "hook": "native",
+      "member": "result",
+      "args": [
+        {},
+        {
+          "status": "SUCCESS",
+          "data": {
+            "model": "clef",
+            "answers": {
+              "urgent": {
+                "type": "noul",
+                "noul": 0.95
+              }
+            },
+            "usage": {
+              "input_tokens": 174,
+              "output_tokens": 0
+            }
+          }
+        }
+      ],
+      "expected": {
+        "model": "clef",
+        "answers": {
+          "urgent": {
+            "type": "noul",
+            "noul": 0.95
+          }
+        },
+        "usage": {
+          "input_tokens": 174,
+          "output_tokens": 0
+        }
+      }
+    },
+    {
+      "name": "搜索预留一次调用",
+      "hook": "extractUsage",
+      "args": [
+        {
+          "model": "ollama-web-search",
+          "upstreamModel": "ollama-web-search",
+          "action": "search",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "query": "news"
+          }
+        }
+      ],
+      "expected": {
+        "requests": 1
+      }
+    },
+    {
+      "name": "决策预留输入 token 上界",
+      "hook": "extractUsage",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef",
+          "action": "decision",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        }
+      ],
+      "expected": {
+        "requests": 1,
+        "input_tokens": 65536,
+        "output_tokens": 0
+      }
+    },
+    {
+      "name": "clef:27b 无 action 时仍按决策模型预留",
+      "hook": "extractUsage",
+      "args": [
+        {
+          "model": "clef:27b",
+          "upstreamModel": "clef:27b",
+          "action": "",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef:27b",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        }
+      ],
+      "expected": {
+        "requests": 1,
+        "input_tokens": 65536,
+        "output_tokens": 0
+      }
+    },
+    {
+      "name": "clef:27b-cloud 无 action 时正确结算实际用量",
+      "hook": "extractUsageOnComplete",
+      "args": [
+        {
+          "model": "clef:27b-cloud",
+          "upstreamModel": "clef:27b",
+          "action": "",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        },
+        {
+          "status": "SUCCESS"
+        },
+        {
+          "model": "clef:27b",
+          "answers": {
+            "urgent": {
+              "type": "noul",
+              "noul": 0.95
+            }
+          },
+          "usage": {
+            "input_tokens": 174,
+            "output_tokens": 0
+          }
+        }
+      ],
+      "expected": {
+        "requests": 1,
+        "input_tokens": 174,
+        "output_tokens": 0
+      }
+    },
+    {
+      "name": "按次定价不把 token 数当作价格倍率",
+      "hook": "extractUsage",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef",
+          "action": "decision",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          },
+          "usagePurpose": "billing_ratios"
+        }
+      ],
+      "expected": null
+    },
+    {
+      "name": "搜索按次定价不额外乘倍率",
+      "hook": "extractUsage",
+      "args": [
+        {
+          "model": "ollama-web-search",
+          "upstreamModel": "ollama-web-search",
+          "action": "search",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "query": "news"
+          },
+          "usagePurpose": "billing_ratios"
+        }
+      ],
+      "expected": null
+    },
+    {
+      "name": "按上游真实用量结算且保留零输出",
+      "hook": "extractUsageOnComplete",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef",
+          "action": "decision",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        },
+        {
+          "status": "SUCCESS"
+        },
+        {
+          "model": "clef",
+          "answers": {
+            "urgent": {
+              "type": "noul",
+              "noul": 0.95
+            }
+          },
+          "usage": {
+            "input_tokens": 174,
+            "output_tokens": 0
+          }
+        }
+      ],
+      "expected": {
+        "requests": 1,
+        "input_tokens": 174,
+        "output_tokens": 0
+      }
+    },
+    {
+      "name": "失败不申报用量",
+      "hook": "extractUsageOnComplete",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef",
+          "action": "decision",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        },
+        {
+          "status": "FAILURE"
+        },
+        {}
+      ],
+      "expected": null
+    },
+    {
+      "name": "同步任务禁止重新提交进行轮询",
+      "hook": "buildQueryRequest",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef",
+          "action": "decision",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        }
+      ],
+      "expectedError": "synchronous"
+    },
+    {
+      "name": "同步任务不伪造轮询状态",
+      "hook": "parseTaskResult",
+      "args": [
+        {
+          "model": "clef",
+          "upstreamModel": "clef",
+          "action": "decision",
+          "publicTaskId": "task_public_123",
+          "baseUrl": "https://ollama.com",
+          "apiKey": "test-channel-key",
+          "requestBody": {
+            "model": "clef",
+            "state": "支付返回 500。",
+            "questions": {
+              "urgent": {
+                "type": "noul",
+                "instructions": "需要立即处理吗？"
+              }
+            }
+          }
+        },
+        {}
+      ],
+      "expectedError": "synchronous"
+    }
+  ]
+}
