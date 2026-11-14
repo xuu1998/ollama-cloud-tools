@@ -9,7 +9,7 @@ Adds Ollama Cloud web search, web fetch, and Clef System One decisions to new-ap
 ## Channel setup
 
 1. Use a new-api build implementing the current plugin API v1 task native routes, immediate completion, `usageProfiles`, and `json-order@1`.
-2. Upload `plugin.js` in the root administrator's plugin page and enable version `1.0.4`.
+2. Upload `plugin.js` in the root administrator's plugin page and enable version `1.0.5`.
 3. Create a **Task Plugin** channel (type 61), select **xuu1998_ollama_cloud_tools**, and explicitly set the base URL to `https://ollama.com`. A trusted HTTPS reverse proxy with an optional path prefix is also supported.
 4. Put an **Ollama API key**, without `Bearer `, in the channel key field. Clients authenticate to the gateway with a **new-api token**, not the Ollama key.
 5. Add the models below, enable the channel in the intended group, and configure pricing. An allowed-model list on the client token must include the corresponding service model.
@@ -140,7 +140,7 @@ Validate marketplace documents with the host's actual Markdown parsers:
 node tools/check-marketplace.mjs --new-api ../new-api --owner xuu1998
 ```
 
-The host's `web/node_modules` must be installed. This verifies the owner namespace, version consistency, and the English/Chinese README and CHANGELOG files.
+The host's `web/node_modules` must be installed. This verifies the owner namespace, version consistency, literal-only metadata, static source readability, and the English/Chinese README and CHANGELOG files.
 
 After installation, run explicit live checks through the gateway:
 
@@ -163,4 +163,4 @@ Contract checked on 2026-11-14:
 
 ## Marketplace submission
 
-Submit repository path `xuu1998/ollama-cloud-tools` and root version tag `v1.0.4`. Each release tag places `plugin.js`, README and CHANGELOG files together, and its version matches `meta.version`.
+Submit repository path `xuu1998/ollama-cloud-tools`. The version `1.0.5` release tag is `v1.0.5`. Each release tag places `plugin.js`, README and CHANGELOG files together, and its version matches `meta.version`.

@@ -37,6 +37,8 @@ import path from 'node:path';
 import { meta } from ${JSON.stringify(url(path.join(pluginRoot, 'plugin.js')))};
 import { parsePluginReadme } from ${JSON.stringify(url(path.join(parserRoot, 'plugin-readme.ts')))};
 import { parsePluginChangelog } from ${JSON.stringify(url(path.join(parserRoot, 'plugin-changelog.ts')))};
+import { parsePluginMetaPreview, readPluginSourceParts } from ${JSON.stringify(url(path.join(parserRoot, 'plugin-meta-preview.ts')))};
+import { javascriptLanguage } from ${JSON.stringify(url(hostRequire.resolve('@codemirror/lang-javascript')))};
 const root = ${JSON.stringify(pluginRoot)};
 const source = 'https://github.com/' + ${JSON.stringify(owner)} + '/ollama-cloud-tools/blob/v' + meta.version + '/';
 const read = (file) => readFileSync(path.join(root, file), 'utf8');
@@ -44,6 +46,52 @@ test('marketplace owner namespace and package version', () => {
   expect(meta.key.startsWith(${JSON.stringify(owner.toLowerCase() + '_')})).toBe(true);
   expect(meta.key.length).toBeLessThanOrEqual(30);
   expect(JSON.parse(read('package.json')).version).toBe(meta.version);
+});
+test('meta is readable without executing the plugin', () => {
+  const source = read('plugin.js');
+  const preview = parsePluginMetaPreview(source);
+  expect(preview.status).toBe('parsed');
+  expect(preview.fields.key).toMatchObject({ state: 'value', value: meta.key });
+  expect(preview.fields.models).toMatchObject({ state: 'value', value: meta.models });
+  expect(readPluginSourceParts(source)).toEqual({ task: true, provider: false, transform: false });
+});
+test('community manifest contains only literal values', () => {
+  const source = read('plugin.js');
+  const tree = javascriptLanguage.parser.parse(source);
+  const declaration = tree.topNode.getChildren('ExportDeclaration')
+    .map(node => node.getChild('VariableDeclaration'))
+    .find(node => node?.getChildren('VariableDefinition').some(name => source.slice(name.from, name.to) === 'meta'));
+  const definition = declaration?.getChildren('VariableDefinition')
+    .find(name => source.slice(name.from, name.to) === 'meta');
+  let value = definition?.nextSibling;
+  while (value && value.name !== 'Equals') value = value.nextSibling;
+  value = value?.nextSibling;
+  while (value && ['LineComment', 'BlockComment'].includes(value.name)) value = value.nextSibling;
+  const skip = new Set(['{', '}', '[', ']', ',', 'LineComment', 'BlockComment']);
+  function literal(node, location) {
+    expect(node, location).toBeTruthy();
+    if (['String', 'Number', 'BooleanLiteral', 'null'].includes(node.name)) return;
+    if (node.name === 'ObjectExpression') {
+      for (let child = node.firstChild; child; child = child.nextSibling) {
+        if (skip.has(child.name)) continue;
+        expect(child.name, location).toBe('Property');
+        expect(['PropertyDefinition', 'String'].includes(child.firstChild?.name), location).toBe(true);
+        let item = child.getChild(':')?.nextSibling;
+        while (item && ['LineComment', 'BlockComment'].includes(item.name)) item = item.nextSibling;
+        literal(item, location + '.' + source.slice(child.firstChild.from, child.firstChild.to));
+      }
+      return;
+    }
+    if (node.name === 'ArrayExpression') {
+      let index = 0;
+      for (let child = node.firstChild; child; child = child.nextSibling) {
+        if (!skip.has(child.name)) literal(child, location + '[' + index++ + ']');
+      }
+      return;
+    }
+    throw new Error(location + ': nonliteral ' + node.name);
+  }
+  literal(value, 'meta');
 });
 for (const [locale, file] of [['en', 'README.md'], ['zh-CN', 'README.zh-CN.md']]) {
   test(file + ' actual host parser', () => {

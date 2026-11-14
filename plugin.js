@@ -1,23 +1,8 @@
 // API v1: synchronous JSON services, executed over HTTP by the Go host.
 const CLEF_MODELS = ["clef:27b", "clef", "clef:cloud", "clef:27b-cloud"];
-const CALL_USAGE = {
-  requests: {
-    type: "number", unit: "count", unitLabel: { en: "request", zh: "次" },
-    description: { en: "Completed API calls", zh: "已完成的 API 调用次数" },
-  },
-};
-const DECISION_USAGE = {
-  requests: CALL_USAGE.requests,
-  input_tokens: {
-    type: "number", unit: "token",
-    description: { en: "Input tokens reported by Ollama", zh: "Ollama 返回的实际输入 token" },
-  },
-  output_tokens: {
-    type: "number", unit: "token",
-    description: { en: "Internal scoring tokens reported by Ollama", zh: "Ollama 返回的内部评分输出 token" },
-  },
-};
 
+// Community catalogs read this object without executing JavaScript.
+// Keep the entire manifest literal, including nested usage profiles.
 export const meta = {
   apiVersion: 1,
   key: "xuu1998_ollama_cloud_tools",
@@ -27,7 +12,7 @@ export const meta = {
     en: "Ollama Cloud web search, web fetch, and Clef System One decisions over native JSON APIs",
     zh: "通过原生 JSON 接口调用 Ollama 云搜索、网页读取和 Clef 云端决策",
   },
-  version: "1.0.4",
+  version: "1.0.5",
   author: { name: "xuu1998" },
   website: "https://docs.ollama.com/capabilities/decision",
   baseUrl: "https://ollama.com",
@@ -36,15 +21,33 @@ export const meta = {
     zh: "直连填写 Ollama API key；转接网关填写上游 new-api 令牌；均不包含 Bearer 前缀",
   },
   requiredCapabilities: ["json-order@1"],
-  models: ["ollama-web-search", "ollama-web-fetch"].concat(CLEF_MODELS),
+  models: ["ollama-web-search", "ollama-web-fetch", "clef:27b", "clef", "clef:cloud", "clef:27b-cloud"],
   fetchMode: "per_task",
   upstreams: ["vendor", "new_api"],
   auth: "api_key",
-  usageSchema: CALL_USAGE,
+  usageSchema: {
+    requests: {
+      type: "number", unit: "count", unitLabel: { en: "request", zh: "次" },
+      description: { en: "Completed API calls", zh: "已完成的 API 调用次数" },
+    },
+  },
   usageExamples: [{ label: "1 request", facts: { requests: 1 } }],
   usageProfiles: [{
-    models: CLEF_MODELS,
-    schema: DECISION_USAGE,
+    models: ["clef:27b", "clef", "clef:cloud", "clef:27b-cloud"],
+    schema: {
+      requests: {
+        type: "number", unit: "count", unitLabel: { en: "request", zh: "次" },
+        description: { en: "Completed API calls", zh: "已完成的 API 调用次数" },
+      },
+      input_tokens: {
+        type: "number", unit: "token",
+        description: { en: "Input tokens reported by Ollama", zh: "Ollama 返回的实际输入 token" },
+      },
+      output_tokens: {
+        type: "number", unit: "token",
+        description: { en: "Internal scoring tokens reported by Ollama", zh: "Ollama 返回的内部评分输出 token" },
+      },
+    },
     examples: [{ label: "1 decision", facts: { requests: 1, input_tokens: 174, output_tokens: 0 } }],
   }],
   routes: [
@@ -306,7 +309,7 @@ export function buildSubmitRequest(ctx) {
   const key = text(ctx.apiKey, "Channel API key").trim();
   if (/[\r\n]/.test(key)) throw new Error("Invalid channel API key");
   return {
-    url: base + (gateway ? "/" + meta.key : "") + request.path,
+    url: base + (gateway ? "/xuu1998_ollama_cloud_tools" : "") + request.path,
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: "Bearer " + key },
     body: request.body,

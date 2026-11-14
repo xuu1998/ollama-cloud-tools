@@ -61,3 +61,11 @@
 - 修改前已确认四项转发用例因旧路径失败，文档检查因 key 不符合 owner 命名和缺少 changelog front matter 失败。
 - 修改后 77 项 Node 测试、72/72 个宿主 fixture、4 项市场文档解析检查、插件注册、New API 绑定能力及 SVG 校验全部通过。
 - 已说明旧 key 是不同插件身份，需要迁移插件专属价格、重新绑定渠道，并更新专属 URL 前缀。未操作实际网关或代为提交插件市场。
+
+## 1.0.5 静态元数据读取修复
+
+- 按官方 `newapi-plugin-dev` 技能复核社区要求：`meta` 全部改为纯字面量，移除常量引用、`.concat()` 以及运行时对导出 `meta` 的读取。
+- 新增源码静态读取及完整 manifest 字面量检查；修复前分别复现 `unavailable` 和 `meta.models: nonliteral CallExpression`。
+- 修复后 77 项 Node 功能测试、72/72 个本地宿主 fixture、6 项市场文档与静态元数据检查全部通过，插件能力识别结果为 task。
+- 另外下载官方发布版 `v1.0.0-rc.51` 的 Windows CLI，按官方 SHA256 文件校验后执行 `plugin lint` 和 `plugin test`；结果为注册有效、72/72 个 fixture 通过。
+- key、用量字段、模型和 API 路由保持兼容。新版本拟使用标签 `v1.0.5`；本地验证不代表市场服务端已接收发布。

@@ -8,7 +8,7 @@ locale: zh-CN
 ## 安装与渠道设置
 
 1. 宿主需要支持当前插件 API v1 的 native 路由、同步 `immediate` 完成、`usageProfiles` 和 `json-order@1`。
-2. Root 管理员在插件管理页上传 `plugin.js`，启用 `1.0.4`。
+2. Root 管理员在插件管理页上传 `plugin.js`，启用 `1.0.5`。
 3. 新建 **Task Plugin / 任务插件** 渠道（类型 61），选择 **xuu1998_ollama_cloud_tools**。
 4. API 地址显式填写 `https://ollama.com`。也可填写可信的 HTTPS 反向代理，支持地址的路径前缀。
 5. 渠道密钥填写 **Ollama API key**，不要带 `Bearer `。客户端使用 **new-api 令牌**访问网关。
@@ -161,7 +161,7 @@ new-api plugin test plugin.js --fixture fixtures/golden.json
 node tools/check-marketplace.mjs --new-api '..\new-api' --owner xuu1998
 ```
 
-需要该宿主的 `web/node_modules` 已安装。此检查包含插件 key 的 owner 前缀、版本一致性，以及中英文 README、CHANGELOG 的格式。
+需要该宿主的 `web/node_modules` 已安装。此检查包含插件 key 的 owner 前缀、版本一致性、元数据纯字面量与源码静态可读性，以及中英文 README、CHANGELOG 的格式。
 
 安装到网关后，可以明确执行真实冒烟：
 
@@ -184,4 +184,4 @@ node tools/smoke.mjs --all
 
 ## 插件市场提交
 
-仓库路径填写 `xuu1998/ollama-cloud-tools`，根目录版本标签为 `v1.0.4`。每个版本标签下，`plugin.js`、README 和 CHANGELOG 位于同一目录；标签版本需与插件 `meta.version` 一致。
+仓库路径填写 `xuu1998/ollama-cloud-tools`，`1.0.5` 对应的根目录版本标签为 `v1.0.5`。每个版本标签下，`plugin.js`、README 和 CHANGELOG 位于同一目录；标签版本需与插件 `meta.version` 一致。
