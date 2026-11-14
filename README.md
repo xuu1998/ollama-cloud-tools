@@ -9,12 +9,20 @@ Adds Ollama Cloud web search, web fetch, and Clef System One decisions to new-ap
 ## Channel setup
 
 1. Use a new-api build implementing the current plugin API v1 task native routes, immediate completion, `usageProfiles`, and `json-order@1`.
-2. Upload `plugin.js` in the root administrator's plugin page and enable version `1.0.3`.
-3. Create a **Task Plugin** channel (type 61), select **ollama-cloud-tools**, and explicitly set the base URL to `https://ollama.com`. A trusted HTTPS reverse proxy with an optional path prefix is also supported.
+2. Upload `plugin.js` in the root administrator's plugin page and enable version `1.0.4`.
+3. Create a **Task Plugin** channel (type 61), select **xuu1998_ollama_cloud_tools**, and explicitly set the base URL to `https://ollama.com`. A trusted HTTPS reverse proxy with an optional path prefix is also supported.
 4. Put an **Ollama API key**, without `Bearer `, in the channel key field. Clients authenticate to the gateway with a **new-api token**, not the Ollama key.
 5. Add the models below, enable the channel in the intended group, and configure pricing. An allowed-model list on the client token must include the corresponding service model.
 
 Do not bind this as a request-processing instance. No local Ollama daemon or model download is needed. Clef Cloud requires a paid Ollama plan or usage credits.
+
+### Migrating from 1.0.3 or earlier
+
+The marketplace identity is `xuu1998_ollama_cloud_tools`. The previous `ollama-cloud-tools` key is a separate plugin identity in the host; uploading this version does not automatically replace existing channel bindings.
+
+Copy any provider-specific model prices to the new identity before enabling requests. Install the new plugin, reselect it on Task Plugin channels and New API upstream-plugin lists, and update each gateway in a chain. Disable the old identity after migration.
+
+Clients using plugin-prefixed endpoints must switch to `/xuu1998_ollama_cloud_tools/...`. Unprefixed native paths such as `/v1/systemone` remain available.
 
 The manifest uses the built-in `Ollama` icon, so uploading only `plugin.js` displays the brand icon. The optional `icon.svg` supports light and dark themes and can be selected in the upload form's icon field. Artwork is from LobeHub Icons; see `LICENSE.icon.txt`.
 
@@ -24,10 +32,10 @@ Version `1.0.2` declares `new_api` upstream support and appears in a **New API**
 
 1. Install and enable the plugin on both gateways.
 2. On the upstream gateway, create the direct Task Plugin channel using an Ollama key.
-3. On the downstream gateway, create a **New API** channel (type 60), select `ollama-cloud-tools` under upstream task plugins, and use the upstream gateway's **new-api token** as the channel key.
-4. Set the base URL to the upstream gateway root, including any deployment prefix, without appending `/v1` or `/ollama-cloud-tools`. Configure the appropriate groups, token permissions and pricing on both gateways.
+3. On the downstream gateway, create a **New API** channel (type 60), select `xuu1998_ollama_cloud_tools` under upstream task plugins, and use the upstream gateway's **new-api token** as the channel key.
+4. Set the base URL to the upstream gateway root, including any deployment prefix, without appending `/v1` or `/xuu1998_ollama_cloud_tools`. Configure the appropriate groups, token permissions and pricing on both gateways.
 
-Gateway requests add the `/ollama-cloud-tools` prefix and preserve the mapped Clef model name. Only the layer directly accessing Ollama removes cloud-routing labels while preserving the explicit model size. Gateway base URLs accept HTTP(S); direct Ollama access still requires HTTPS.
+Gateway requests add the `/xuu1998_ollama_cloud_tools` prefix and preserve the mapped Clef model name. Only the layer directly accessing Ollama removes cloud-routing labels while preserving the explicit model size. Gateway base URLs accept HTTP(S); direct Ollama access still requires HTTPS.
 
 ## Models and endpoints
 
@@ -38,7 +46,7 @@ Gateway requests add the `/ollama-cloud-tools` prefix and preserve the mapped Cl
 | `clef:27b` | `POST /v1/systemone` | Classify, estimate yes/no probabilities, and score criteria; recommended explicit model |
 | `clef`, `clef:cloud`, `clef:27b-cloud` | `POST /v1/systemone` | Compatible Clef names and cloud-routing labels |
 
-Use `/ollama-cloud-tools/api/web_search`, `/ollama-cloud-tools/api/web_fetch`, and `/ollama-cloud-tools/v1/systemone` to select this plugin explicitly. The host publishes these prefixed aliases. Search and fetch infer their gateway model, so their request bodies do not need a `model`. You may include the matching service model explicitly for compatibility.
+Use `/xuu1998_ollama_cloud_tools/api/web_search`, `/xuu1998_ollama_cloud_tools/api/web_fetch`, and `/xuu1998_ollama_cloud_tools/v1/systemone` to select this plugin explicitly. The host publishes these prefixed aliases. Search and fetch infer their gateway model, so their request bodies do not need a `model`. You may include the matching service model explicitly for compatibility.
 
 Use `clef:27b` in your channel and requests to select the explicit model size; direct cloud calls retain this full name. For compatibility, `clef` and `clef:cloud` are sent as `clef`, while `clef:27b-cloud` is sent as `clef:27b`. Gateway calls preserve the mapped name so the upstream can route its published alias. Leave model mappings empty or map only between supported Clef names. This plugin still accesses cloud services and does not install local models or claim cloud availability for Nimble, Tev, or Clef Flash.
 
@@ -57,19 +65,19 @@ Pricing is configured by the administrator, never calculated in the plugin.
 
 Send these bodies with `Authorization: Bearer <NEW_API_TOKEN>` and `Content-Type: application/json` to your gateway.
 
-Search, `POST /ollama-cloud-tools/api/web_search`:
+Search, `POST /xuu1998_ollama_cloud_tools/api/web_search`:
 
 ```json
 {"query":"Ollama System One cloud documentation","max_results":3}
 ```
 
-Read a page, `POST /ollama-cloud-tools/api/web_fetch`:
+Read a page, `POST /xuu1998_ollama_cloud_tools/api/web_fetch`:
 
 ```json
 {"url":"https://ollama.com/"}
 ```
 
-Make decisions, `POST /ollama-cloud-tools/v1/systemone`:
+Make decisions, `POST /xuu1998_ollama_cloud_tools/v1/systemone`:
 
 ```json
 {
@@ -126,6 +134,14 @@ If a new-api executable is unavailable, use the source checkout without changing
 
 That script compiles a small checker into this plugin's ignored `tools/plugincheck.exe` and uses the actual host registry and JavaScript engine. `-GoCommand` selects a particular Go executable if needed.
 
+Validate marketplace documents with the host's actual Markdown parsers:
+
+```sh
+node tools/check-marketplace.mjs --new-api ../new-api --owner xuu1998
+```
+
+The host's `web/node_modules` must be installed. This verifies the owner namespace, version consistency, and the English/Chinese README and CHANGELOG files.
+
 After installation, run explicit live checks through the gateway:
 
 ```powershell
@@ -144,3 +160,7 @@ Contract checked on 2026-11-14:
 - [Cloud decisions](https://docs.ollama.com/capabilities/decision)
 - [System One API](https://docs.ollama.com/api/systemone)
 - [Clef model](https://ollama.com/library/clef)
+
+## Marketplace submission
+
+Submit repository path `xuu1998/ollama-cloud-tools` and root version tag `v1.0.4`. Each release tag places `plugin.js`, README and CHANGELOG files together, and its version matches `meta.version`.

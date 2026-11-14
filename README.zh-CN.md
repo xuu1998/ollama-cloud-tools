@@ -8,13 +8,21 @@ locale: zh-CN
 ## 安装与渠道设置
 
 1. 宿主需要支持当前插件 API v1 的 native 路由、同步 `immediate` 完成、`usageProfiles` 和 `json-order@1`。
-2. Root 管理员在插件管理页上传 `plugin.js`，启用 `1.0.3`。
-3. 新建 **Task Plugin / 任务插件** 渠道（类型 61），选择 **ollama-cloud-tools**。
+2. Root 管理员在插件管理页上传 `plugin.js`，启用 `1.0.4`。
+3. 新建 **Task Plugin / 任务插件** 渠道（类型 61），选择 **xuu1998_ollama_cloud_tools**。
 4. API 地址显式填写 `https://ollama.com`。也可填写可信的 HTTPS 反向代理，支持地址的路径前缀。
 5. 渠道密钥填写 **Ollama API key**，不要带 `Bearer `。客户端使用 **new-api 令牌**访问网关。
 6. 添加下表中的模型，为渠道设置分组并启用，配置模型或插件专属价格。客户端令牌若限制模型，也要允许对应模型。
 
 本插件通过任务插件的同步完成机制运行，不是“请求处理插件”实例。不需要安装本地 Ollama，不需要下载模型。Clef 云端需要 Ollama 付费套餐或购买使用额度。
+
+### 从 1.0.3 或更早版本迁移
+
+市场发布版本的 key 是 `xuu1998_ollama_cloud_tools`。旧版 `ollama-cloud-tools` 在宿主中是另一个插件身份，上传新版不会自动替换已有绑定。
+
+如已有插件专属价格，先将其复制到新 key 对应的模型价格；然后安装新版，重新选择任务插件渠道以及 New API 渠道中的上游任务插件。多层网关需分别安装并重新绑定。迁移完成后停用旧插件，避免继续走旧渠道。
+
+使用插件专属路径的客户端改为 `/xuu1998_ollama_cloud_tools/...`。没有前缀的原生接口如 `/v1/systemone` 保持可用。
 
 插件已声明内置的 `Ollama` 图标，只上传 `plugin.js` 也能显示。另附适配浅色和深色主题的 `icon.svg`，可在上传界面的图标选项中选择。图形来自 LobeHub Icons，许可见 `LICENSE.icon.txt`。
 
@@ -24,11 +32,11 @@ locale: zh-CN
 
 1. 在两个网关都安装并启用本插件。
 2. 上游网关创建直连 Ollama 的任务插件渠道，使用 Ollama API key。
-3. 下游网关创建 **New API** 渠道（类型 60），地址填写上游网关根地址，可含部署路径前缀，不要追加 `/v1` 或 `/ollama-cloud-tools`。
-4. 下游渠道密钥填写**上游网关的 new-api 令牌**，在“上游任务插件”中选择 `ollama-cloud-tools`。
+3. 下游网关创建 **New API** 渠道（类型 60），地址填写上游网关根地址，可含部署路径前缀，不要追加 `/v1` 或 `/xuu1998_ollama_cloud_tools`。
+4. 下游渠道密钥填写**上游网关的 new-api 令牌**，在“上游任务插件”中选择 `xuu1998_ollama_cloud_tools`。
 5. 两侧分组和令牌均需允许所用模型，分别配置各自价格。
 
-转发时插件自动添加 `/ollama-cloud-tools` 专属前缀，保留上游模型映射后的 Clef 名称；真正直连 Ollama 的那一层将云标签归一为对应的模型规格。网关地址允许 HTTP(S)，直连 Ollama 仍要求 HTTPS。
+转发时插件自动添加 `/xuu1998_ollama_cloud_tools` 专属前缀，保留上游模型映射后的 Clef 名称；真正直连 Ollama 的那一层将云标签归一为对应的模型规格。网关地址允许 HTTP(S)，直连 Ollama 仍要求 HTTPS。
 
 ## 支持的模型和接口
 
@@ -41,9 +49,9 @@ locale: zh-CN
 
 推荐使用带插件前缀的地址，明确选中本插件：
 
-- `/ollama-cloud-tools/api/web_search`
-- `/ollama-cloud-tools/api/web_fetch`
-- `/ollama-cloud-tools/v1/systemone`
+- `/xuu1998_ollama_cloud_tools/api/web_search`
+- `/xuu1998_ollama_cloud_tools/api/web_fetch`
+- `/xuu1998_ollama_cloud_tools/v1/systemone`
 
 前缀别名由宿主自动发布。搜索与读取会自动补上网关内部路由模型，客户端无需提交 `model`；也可显式传对应的服务模型名。
 
@@ -69,7 +77,7 @@ Authorization: Bearer <NEW_API_TOKEN>
 Content-Type: application/json
 ```
 
-云搜索，`POST /ollama-cloud-tools/api/web_search`：
+云搜索，`POST /xuu1998_ollama_cloud_tools/api/web_search`：
 
 ```json
 {"query":"Ollama 云端决策接口文档","max_results":3}
@@ -77,7 +85,7 @@ Content-Type: application/json
 
 返回 `results` 数组，每条包含 `title`、`url`、`content`。
 
-网页读取，`POST /ollama-cloud-tools/api/web_fetch`：
+网页读取，`POST /xuu1998_ollama_cloud_tools/api/web_fetch`：
 
 ```json
 {"url":"https://ollama.com/"}
@@ -85,7 +93,7 @@ Content-Type: application/json
 
 返回 `title`、`content`、`links`。
 
-云端决策，`POST /ollama-cloud-tools/v1/systemone`：
+云端决策，`POST /xuu1998_ollama_cloud_tools/v1/systemone`：
 
 ```json
 {
@@ -147,6 +155,14 @@ new-api plugin test plugin.js --fixture fixtures/golden.json
 
 脚本只在本插件目录编译被忽略的 `tools/plugincheck.exe`，不会往 new-api 源码目录写入文件；可用 `-GoCommand` 指定 Go 可执行文件。
 
+可再调用宿主实际 Markdown 解析器检查市场文档：
+
+```powershell
+node tools/check-marketplace.mjs --new-api '..\new-api' --owner xuu1998
+```
+
+需要该宿主的 `web/node_modules` 已安装。此检查包含插件 key 的 owner 前缀、版本一致性，以及中英文 README、CHANGELOG 的格式。
+
 安装到网关后，可以明确执行真实冒烟：
 
 ```powershell
@@ -165,3 +181,7 @@ node tools/smoke.mjs --all
 - [云端决策说明](https://docs.ollama.com/capabilities/decision)
 - [System One API](https://docs.ollama.com/api/systemone)
 - [Clef 模型](https://ollama.com/library/clef)
+
+## 插件市场提交
+
+仓库路径填写 `xuu1998/ollama-cloud-tools`，根目录版本标签为 `v1.0.4`。每个版本标签下，`plugin.js`、README 和 CHANGELOG 位于同一目录；标签版本需与插件 `meta.version` 一致。

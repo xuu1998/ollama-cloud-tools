@@ -116,7 +116,7 @@ export const cases = [
     apiKey: 'test-gateway-token', model: 'ollama-web-search', upstreamModel: 'ollama-web-search',
     action: 'search', requestBody: { query: 'news', max_results: 3 },
   }], {
-    url: 'https://gateway.example/ollama-cloud-tools/api/web_search', method: 'POST',
+    url: 'https://gateway.example/xuu1998_ollama_cloud_tools/api/web_search', method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json', Authorization: 'Bearer test-gateway-token' },
     body: { query: 'news', max_results: 3 },
   }),
@@ -125,7 +125,7 @@ export const cases = [
     apiKey: 'test-gateway-token', model: 'ollama-web-fetch', upstreamModel: 'ollama-web-fetch',
     action: 'fetch', requestBody: { url: 'https://ollama.com/' },
   }], {
-    url: 'http://gateway.example:3000/gateway/ollama-cloud-tools/api/web_fetch', method: 'POST',
+    url: 'http://gateway.example:3000/gateway/xuu1998_ollama_cloud_tools/api/web_fetch', method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json', Authorization: 'Bearer test-gateway-token' },
     body: { url: 'https://ollama.com/' },
   }),
@@ -133,7 +133,7 @@ export const cases = [
     ...driver, upstream: { kind: 'new_api' }, baseUrl: 'https://gateway.example/',
     apiKey: 'test-gateway-token', upstreamModel: 'clef:cloud',
   }], {
-    url: 'https://gateway.example/ollama-cloud-tools/v1/systemone', method: 'POST',
+    url: 'https://gateway.example/xuu1998_ollama_cloud_tools/v1/systemone', method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json', Authorization: 'Bearer test-gateway-token' },
     body: { model: 'clef:cloud', state: '支付返回 500。', questions: question },
   }),
@@ -153,7 +153,7 @@ export const cases = [
     upstream: { kind: 'new_api' }, baseUrl: 'https://gateway.example',
     requestBody: { ...decision, model: 'clef:27b' },
   }], {
-    url: 'https://gateway.example/ollama-cloud-tools/v1/systemone', method: 'POST',
+    url: 'https://gateway.example/xuu1998_ollama_cloud_tools/v1/systemone', method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json', Authorization: 'Bearer test-channel-key' },
     body: { model: 'clef:27b-cloud', state: '支付返回 500。', questions: question },
   }),

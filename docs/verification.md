@@ -52,3 +52,12 @@
 - 本地编译器探测逻辑改为通用 Go 命令或显式 `-GoCommand` 参数。
 - 编译产物、环境文件、日志和内部设计草稿排除出版本控制，图标保留原始 MIT 许可声明。
 - 调整后再次通过 77 项 Node 测试、72/72 个宿主 fixture、插件注册、New API 上游绑定能力与图标格式校验。
+
+## 1.0.4 社区市场规范
+
+- 插件身份改为 `xuu1998_ollama_cloud_tools`，包版本及发布标签对应 `1.0.4`。专属前缀、网关转发、冒烟脚本及请求示例已同步更新。
+- CHANGELOG 改为单版本说明，补齐 `changelogVersion`、`plugin`、`version`、`locale` 元数据和简体中文译文。
+- 新增 `tools/check-marketplace.mjs`，调用宿主实际 README/CHANGELOG 解析器检查，不修改宿主源码。
+- 修改前已确认四项转发用例因旧路径失败，文档检查因 key 不符合 owner 命名和缺少 changelog front matter 失败。
+- 修改后 77 项 Node 测试、72/72 个宿主 fixture、4 项市场文档解析检查、插件注册、New API 绑定能力及 SVG 校验全部通过。
+- 已说明旧 key 是不同插件身份，需要迁移插件专属价格、重新绑定渠道，并更新专属 URL 前缀。未操作实际网关或代为提交插件市场。

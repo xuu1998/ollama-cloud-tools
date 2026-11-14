@@ -20,14 +20,14 @@ const DECISION_USAGE = {
 
 export const meta = {
   apiVersion: 1,
-  key: "ollama-cloud-tools",
+  key: "xuu1998_ollama_cloud_tools",
   name: { en: "Ollama Cloud Tools", zh: "Ollama 云搜索与决策" },
   icon: "Ollama",
   description: {
     en: "Ollama Cloud web search, web fetch, and Clef System One decisions over native JSON APIs",
     zh: "通过原生 JSON 接口调用 Ollama 云搜索、网页读取和 Clef 云端决策",
   },
-  version: "1.0.3",
+  version: "1.0.4",
   author: { name: "xuu1998" },
   website: "https://docs.ollama.com/capabilities/decision",
   baseUrl: "https://ollama.com",
@@ -306,7 +306,7 @@ export function buildSubmitRequest(ctx) {
   const key = text(ctx.apiKey, "Channel API key").trim();
   if (/[\r\n]/.test(key)) throw new Error("Invalid channel API key");
   return {
-    url: base + (gateway ? "/ollama-cloud-tools" : "") + request.path,
+    url: base + (gateway ? "/" + meta.key : "") + request.path,
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: "Bearer " + key },
     body: request.body,

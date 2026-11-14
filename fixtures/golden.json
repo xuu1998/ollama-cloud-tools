@@ -1099,7 +1099,7 @@
         }
       ],
       "expected": {
-        "url": "https://gateway.example/ollama-cloud-tools/api/web_search",
+        "url": "https://gateway.example/xuu1998_ollama_cloud_tools/api/web_search",
         "method": "POST",
         "headers": {
           "Content-Type": "application/json",
@@ -1132,7 +1132,7 @@
         }
       ],
       "expected": {
-        "url": "http://gateway.example:3000/gateway/ollama-cloud-tools/api/web_fetch",
+        "url": "http://gateway.example:3000/gateway/xuu1998_ollama_cloud_tools/api/web_fetch",
         "method": "POST",
         "headers": {
           "Content-Type": "application/json",
@@ -1171,7 +1171,7 @@
         }
       ],
       "expected": {
-        "url": "https://gateway.example/ollama-cloud-tools/v1/systemone",
+        "url": "https://gateway.example/xuu1998_ollama_cloud_tools/v1/systemone",
         "method": "POST",
         "headers": {
           "Content-Type": "application/json",
@@ -1288,7 +1288,7 @@
         }
       ],
       "expected": {
-        "url": "https://gateway.example/ollama-cloud-tools/v1/systemone",
+        "url": "https://gateway.example/xuu1998_ollama_cloud_tools/v1/systemone",
         "method": "POST",
         "headers": {
           "Content-Type": "application/json",

@@ -17,7 +17,7 @@ const url = new URL(base);
 if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.search || url.hash) {
   throw new Error('网关地址必须是 HTTP(S) 地址，且不含凭据、查询参数或片段。');
 }
-const root = base.replace(/\/+$/, '') + '/ollama-cloud-tools';
+const root = base.replace(/\/+$/, '') + '/xuu1998_ollama_cloud_tools';
 const enabled = (mode) => modes.includes('--all') || modes.includes(mode);
 
 async function request(path, body) {
